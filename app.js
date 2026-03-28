@@ -115,6 +115,22 @@ function quantityDots(q) {
   ).join('');
 }
 
+function validOrigin(t) {
+  const o = t.origin;
+  return o && o !== '/' && o !== 'n.a.' ? o : '';
+}
+
+function teaDetailsHTML(t) {
+  return `<dl class="tea-details">
+    ${t.temp ? `<div><dt>Temperature</dt><dd>${t.temp}</dd></div>` : ''}
+    ${t.brew ? `<div><dt>Brew time</dt><dd>${t.brew}</dd></div>` : ''}
+    ${t.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(t.quantity)}</span></dd></div>` : ''}
+    ${t.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${t.aromaNotes}</dd></div>` : ''}
+    ${t.sourcer ? `<div><dt>Brand</dt><dd>${t.sourcer}</dd></div>` : ''}
+    ${t.theme ? `<div><dt>Theme</dt><dd>${t.theme}</dd></div>` : ''}
+  </dl>`;
+}
+
 function teaWeight(t) {
   let w = 1;
   const c = (t.collection || '').toLowerCase();
@@ -158,7 +174,7 @@ function renderFeaturedCard(tea) {
     document.getElementById('featured-card').innerHTML = '<p class="empty-msg">No teas available for this time of day.</p>';
     return;
   }
-  const origin = tea.origin && tea.origin !== '/' && tea.origin !== 'n.a.' ? tea.origin : '';
+  const origin = validOrigin(tea);
   document.getElementById('featured-card').innerHTML = `
     <h2 class="tea-name">${tea.name}</h2>
     <div class="tea-meta">
@@ -167,13 +183,7 @@ function renderFeaturedCard(tea) {
       ${tea.sourcer ? `<span class="tea-sourcer">· ${tea.sourcer}</span>` : ''}
     </div>
     <p class="tea-description">${tea.description}</p>
-    <dl class="tea-details">
-      ${tea.temp ? `<div><dt>Temperature</dt><dd>${tea.temp}</dd></div>` : ''}
-      ${tea.brew ? `<div><dt>Brew time</dt><dd>${tea.brew}</dd></div>` : ''}
-      ${tea.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(tea.quantity)}</span></dd></div>` : ''}
-      ${tea.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${tea.aromaNotes}</dd></div>` : ''}
-      ${tea.theme ? `<div><dt>Theme</dt><dd>${tea.theme}</dd></div>` : ''}
-    </dl>
+    ${teaDetailsHTML(tea)}
   `;
 }
 
@@ -196,13 +206,6 @@ function renderAlternatives(eligible, featured) {
       </div>
     </div>
   `).join('');
-
-  grid.querySelectorAll('.alt-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const tea = teas.find(t => t.id === Number(card.dataset.id));
-      if (tea) promoteToFeatured(tea);
-    });
-  });
 }
 
 function promoteToFeatured(tea) {
@@ -218,15 +221,19 @@ function promoteToFeatured(tea) {
   }, 300);
 }
 
+function clearRecommend() {
+  renderFeaturedCard(null);
+  document.getElementById('alternatives-heading').hidden = true;
+  document.getElementById('alternatives').innerHTML = '';
+}
+
 function suggestAnother() {
   const eligible = getEligible();
   const unseen = eligible.filter(t => !shownSet.has(t.id));
   if (unseen.length === 0) shownSet.clear();
   const pool = unseen.length > 0 ? unseen : eligible;
   if (pool.length === 0) {
-    renderFeaturedCard(null);
-    document.getElementById('alternatives-heading').hidden = true;
-    document.getElementById('alternatives').innerHTML = '';
+    clearRecommend();
     return;
   }
   const pick = weightedRandom(pool);
@@ -248,9 +255,7 @@ function initRecommend(tea) {
   } else {
     const eligible = getEligible();
     if (eligible.length === 0) {
-      renderFeaturedCard(null);
-      document.getElementById('alternatives-heading').hidden = true;
-      document.getElementById('alternatives').innerHTML = '';
+      clearRecommend();
     } else {
       const pick = weightedRandom(eligible);
       currentFeatured = pick;
@@ -270,17 +275,38 @@ function onToggleChange() {
 document.getElementById('toggle-christmas').addEventListener('change', onToggleChange);
 document.getElementById('toggle-specials').addEventListener('change', onToggleChange);
 
+document.getElementById('alternatives').addEventListener('click', e => {
+  const card = e.target.closest('.alt-card');
+  if (!card) return;
+  const tea = teas.find(t => t.id === Number(card.dataset.id));
+  if (tea) promoteToFeatured(tea);
+});
+
+document.getElementById('browse-grid').addEventListener('click', e => {
+  const card = e.target.closest('.browse-card');
+  if (!card) return;
+  card.classList.toggle('expanded');
+});
+
 // === Browse View ===
+const filterEls = {
+  daytime: document.getElementById('filter-daytime'),
+  type: document.getElementById('filter-type'),
+  origin: document.getElementById('filter-origin'),
+  christmas: document.getElementById('browse-christmas'),
+  specials: document.getElementById('browse-specials'),
+};
+
 const types = [...new Set(teas.map(t => t.type))].sort();
-const typeSelect = document.getElementById('filter-type');
+const typeSelect = filterEls.type;
 types.forEach(t => {
   const o = document.createElement('option');
   o.value = t; o.textContent = t;
   typeSelect.appendChild(o);
 });
 
-const origins = [...new Set(teas.map(t => t.origin).filter(o => o && o !== '/' && o !== 'n.a.'))].sort();
-const originSelect = document.getElementById('filter-origin');
+const origins = [...new Set(teas.map(t => validOrigin(t)).filter(Boolean))].sort();
+const originSelect = filterEls.origin;
 origins.forEach(o => {
   const opt = document.createElement('option');
   opt.value = o; opt.textContent = o;
@@ -310,20 +336,20 @@ function setHashFilters(f) {
 }
 
 function applyFiltersToUI(f) {
-  document.getElementById('filter-daytime').value = f.daytime;
-  document.getElementById('filter-type').value = f.type;
-  document.getElementById('filter-origin').value = f.origin;
-  document.getElementById('browse-christmas').checked = f.christmas;
-  document.getElementById('browse-specials').checked = f.specials;
+  filterEls.daytime.value = f.daytime;
+  filterEls.type.value = f.type;
+  filterEls.origin.value = f.origin;
+  filterEls.christmas.checked = f.christmas;
+  filterEls.specials.checked = f.specials;
 }
 
 function readFiltersFromUI() {
   return {
-    daytime: document.getElementById('filter-daytime').value,
-    type: document.getElementById('filter-type').value,
-    origin: document.getElementById('filter-origin').value,
-    christmas: document.getElementById('browse-christmas').checked,
-    specials: document.getElementById('browse-specials').checked,
+    daytime: filterEls.daytime.value,
+    type: filterEls.type.value,
+    origin: filterEls.origin.value,
+    christmas: filterEls.christmas.checked,
+    specials: filterEls.specials.checked,
   };
 }
 
@@ -357,11 +383,11 @@ function renderBrowse() {
   // Update available options for each filter based on the other filters
   const daytimeAvailable = new Set(getFilteredTeas(f, 'daytime').map(t => t.daytime).filter(Boolean));
   const typeAvailable = new Set(getFilteredTeas(f, 'type').map(t => t.type));
-  const originAvailable = new Set(getFilteredTeas(f, 'origin').map(t => t.origin).filter(o => o && o !== '/' && o !== 'n.a.'));
+  const originAvailable = new Set(getFilteredTeas(f, 'origin').map(t => validOrigin(t)).filter(Boolean));
 
-  updateSelectOptions(document.getElementById('filter-daytime'), daytimeAvailable);
-  updateSelectOptions(document.getElementById('filter-type'), typeAvailable);
-  updateSelectOptions(document.getElementById('filter-origin'), originAvailable);
+  updateSelectOptions(filterEls.daytime, daytimeAvailable);
+  updateSelectOptions(filterEls.type, typeAvailable);
+  updateSelectOptions(filterEls.origin, originAvailable);
 
   // Re-read filters in case any were reset
   const updatedF = readFiltersFromUI();
@@ -380,7 +406,7 @@ function renderBrowse() {
   emptyMsg.hidden = true;
 
   grid.innerHTML = filtered.map(t => {
-    const origin = t.origin && t.origin !== '/' && t.origin !== 'n.a.' ? t.origin : '';
+    const origin = validOrigin(t);
     const oos = !isInStock(t) ? ' out-of-stock' : '';
     return `
     <div class="browse-card${oos}" data-id="${t.id}">
@@ -391,23 +417,10 @@ function renderBrowse() {
       </div>
       <div class="browse-card-detail">
         <p class="tea-description">${t.description}</p>
-        <dl class="tea-details">
-          ${t.temp ? `<div><dt>Temperature</dt><dd>${t.temp}</dd></div>` : ''}
-          ${t.brew ? `<div><dt>Brew time</dt><dd>${t.brew}</dd></div>` : ''}
-          ${t.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(t.quantity)}</span></dd></div>` : ''}
-          ${t.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${t.aromaNotes}</dd></div>` : ''}
-          ${t.sourcer ? `<div><dt>Brand</dt><dd>${t.sourcer}</dd></div>` : ''}
-          ${t.theme ? `<div><dt>Theme</dt><dd>${t.theme}</dd></div>` : ''}
-        </dl>
+        ${teaDetailsHTML(t)}
       </div>
     </div>`;
   }).join('');
-
-  grid.querySelectorAll('.browse-card').forEach(card => {
-    card.addEventListener('click', () => {
-      card.classList.toggle('expanded');
-    });
-  });
 }
 
 document.querySelectorAll('#browse .filters select, #browse .filters input').forEach(el => {
