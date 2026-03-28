@@ -267,6 +267,22 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
   margin-bottom: 1rem;
 }
 
+.browse-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex-basis: auto;
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .browse-toggles {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;
