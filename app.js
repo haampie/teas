@@ -180,7 +180,7 @@ function renderFeaturedCard(tea) {
     <div class="tea-meta">
       <span class="badge" style="background:${badgeColor(tea.type)}">${tea.type}</span>
       ${origin ? `<span class="tea-origin">${origin}</span>` : ''}
-      ${tea.sourcer ? `<span class="tea-sourcer">· ${tea.sourcer}</span>` : ''}
+      ${tea.sourcer ? `<span>·</span><span class="tea-sourcer">${tea.sourcer}</span>` : ''}
     </div>
     <p class="tea-description">${tea.description}</p>
     ${teaDetailsHTML(tea, { showBrand: false })}
