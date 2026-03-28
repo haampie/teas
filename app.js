@@ -145,6 +145,7 @@ function weightedRandom(arr) {
 // === Recommend View ===
 const shownSet = new Set();
 let currentFeatured = null;
+let currentView = 'recommend';
 
 function getEligible() {
   const tod = getTimeOfDay();
@@ -239,14 +240,22 @@ function suggestAnother() {
   promoteToFeatured(pick);
 }
 
-function initRecommend() {
+function initRecommend(tea) {
   document.getElementById('greeting').textContent = getGreeting();
   // Auto-enable Christmas in December
   if (new Date().getMonth() === 11) {
     document.getElementById('toggle-christmas').checked = true;
   }
   shownSet.clear();
-  suggestAnother();
+  if (tea) {
+    currentFeatured = tea;
+    shownSet.add(tea.id);
+    renderFeaturedCard(tea);
+    renderAlternatives(getEligible(), tea);
+    history.replaceState(null, '', '#tea=' + tea.slug);
+  } else {
+    suggestAnother();
+  }
 }
 
 document.getElementById('suggest-btn').addEventListener('click', suggestAnother);
@@ -287,6 +296,7 @@ function getHashFilters() {
 
 function setHashFilters(f) {
   const p = new URLSearchParams();
+  p.set('view', 'browse');
   if (f.daytime !== 'All') p.set('daytime', f.daytime);
   if (f.type !== 'All') p.set('type', f.type);
   if (f.origin !== 'All') p.set('origin', f.origin);
@@ -313,18 +323,47 @@ function readFiltersFromUI() {
   };
 }
 
-function renderBrowse() {
-  const f = readFiltersFromUI();
-  setHashFilters(f);
-  const filtered = teas.filter(t => {
-    if (f.daytime !== 'All' && t.daytime && t.daytime !== 'Day' && t.daytime !== f.daytime) return false;
-    if (f.type !== 'All' && t.type !== f.type) return false;
-    if (f.origin !== 'All' && t.origin !== f.origin) return false;
+function getFilteredTeas(f, exclude) {
+  return teas.filter(t => {
+    if (exclude !== 'daytime' && f.daytime !== 'All' && t.daytime && t.daytime !== 'Day' && t.daytime !== f.daytime) return false;
+    if (exclude !== 'type' && f.type !== 'All' && t.type !== f.type) return false;
+    if (exclude !== 'origin' && f.origin !== 'All' && t.origin !== f.origin) return false;
     if (isChristmas(t) && !f.christmas) return false;
     if (isSpecials(t) && !f.specials) return false;
     if (!isInStock(t)) return false;
     return true;
   });
+}
+
+function updateSelectOptions(select, available) {
+  let needsReset = false;
+  for (const opt of select.options) {
+    if (opt.value === 'All') continue;
+    const hidden = !available.has(opt.value);
+    opt.hidden = hidden;
+    opt.disabled = hidden;
+    if (hidden && opt.selected) needsReset = true;
+  }
+  if (needsReset) select.value = 'All';
+}
+
+function renderBrowse() {
+  const f = readFiltersFromUI();
+
+  // Update available options for each filter based on the other filters
+  const daytimeAvailable = new Set(getFilteredTeas(f, 'daytime').map(t => t.daytime).filter(Boolean));
+  const typeAvailable = new Set(getFilteredTeas(f, 'type').map(t => t.type));
+  const originAvailable = new Set(getFilteredTeas(f, 'origin').map(t => t.origin).filter(o => o && o !== '/' && o !== 'n.a.'));
+
+  updateSelectOptions(document.getElementById('filter-daytime'), daytimeAvailable);
+  updateSelectOptions(document.getElementById('filter-type'), typeAvailable);
+  updateSelectOptions(document.getElementById('filter-origin'), originAvailable);
+
+  // Re-read filters in case any were reset
+  const updatedF = readFiltersFromUI();
+  setHashFilters(updatedF);
+
+  const filtered = getFilteredTeas(updatedF);
 
   const grid = document.getElementById('browse-grid');
   const emptyMsg = document.getElementById('browse-empty');
@@ -372,40 +411,31 @@ document.querySelectorAll('#browse .filters select, #browse .filters input').for
 });
 
 // === Navigation ===
+function switchView(name) {
+  currentView = name;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.nav-btn[data-view="${name}"]`).classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  if (name === 'browse') {
+    renderBrowse();
+  } else {
+    if (!currentFeatured) initRecommend();
+    history.replaceState(null, '', currentFeatured ? '#tea=' + currentFeatured.slug : location.pathname);
+  }
+}
+
 document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(btn.dataset.view).classList.add('active');
-    if (btn.dataset.view === 'browse') {
-      renderBrowse();
-    } else if (currentFeatured) {
-      history.replaceState(null, '', '#tea=' + currentFeatured.slug);
-    }
-  });
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
 });
 
 // === Init ===
 const initParams = new URLSearchParams(location.hash.slice(1));
-const teaSlug = initParams.get('tea');
-if (teaSlug) {
-  const t = findBySlug(teaSlug);
-  if (t) {
-    document.getElementById('greeting').textContent = getGreeting();
-    if (new Date().getMonth() === 11) {
-      document.getElementById('toggle-christmas').checked = true;
-    }
-    currentFeatured = t;
-    shownSet.add(t.id);
-    renderFeaturedCard(t);
-    renderAlternatives(getEligible(), t);
-  } else {
-    applyFiltersToUI(getHashFilters());
-    initRecommend();
-  }
+applyFiltersToUI(getHashFilters());
+
+if (initParams.get('view') === 'browse') {
+  switchView('browse');
 } else {
-  // Restore browse filters from hash
-  applyFiltersToUI(getHashFilters());
-  initRecommend();
+  const slug = initParams.get('tea');
+  initRecommend((slug && findBySlug(slug)) || undefined);
 }
