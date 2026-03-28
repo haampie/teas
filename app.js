@@ -124,7 +124,7 @@ function teaDetailsHTML(t, { showBrand = true } = {}) {
   return `<dl class="tea-details">
     ${t.temp ? `<div><dt>Temperature</dt><dd>${t.temp}</dd></div>` : ''}
     ${t.brew ? `<div><dt>Brew time</dt><dd>${t.brew}</dd></div>` : ''}
-    ${t.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(t.quantity)}</span></dd></div>` : ''}
+    ${t.quantity ? `<div><dt>Stock</dt><dd><span class="quantity-dots">${quantityDots(t.quantity)}</span></dd></div>` : ''}
     ${t.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${t.aromaNotes}</dd></div>` : ''}
     ${showBrand && t.sourcer ? `<div><dt>Brand</dt><dd>${t.sourcer}</dd></div>` : ''}
     ${t.theme ? `<div><dt>Theme</dt><dd>${t.theme}</dd></div>` : ''}
