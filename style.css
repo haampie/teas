@@ -163,6 +163,11 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
   background: var(--border);
 }
 
+/* === Recommend Hero === */
+.recommend-hero {
+  min-height: calc(100dvh - 8rem);
+}
+
 /* === Toggles === */
 .toggles {
   display: flex;

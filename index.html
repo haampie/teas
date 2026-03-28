@@ -22,20 +22,24 @@
 
   <main>
     <section id="recommend" class="view">
-      <p id="greeting" class="greeting"></p>
-      <script>document.getElementById('greeting').textContent=new Date().getHours()<11?'Good morning. How about\u2026':new Date().getHours()<17?'Good afternoon. How about\u2026':'Good evening. How about\u2026';</script>
-      <div id="featured-card" class="featured-card"></div>
-      <div class="toggles">
-        <label class="toggle-label">
-          <input type="checkbox" id="toggle-christmas"> Show Christmas teas
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="toggle-specials"> Show Specials
-        </label>
+      <div class="recommend-hero">
+        <p id="greeting" class="greeting"></p>
+        <script>document.getElementById('greeting').textContent=new Date().getHours()<11?'Good morning. How about\u2026':new Date().getHours()<17?'Good afternoon. How about\u2026':'Good evening. How about\u2026';</script>
+        <div id="featured-card" class="featured-card"></div>
       </div>
       <button id="suggest-btn" class="suggest-btn">Suggest another</button>
-      <h2 id="alternatives-heading" class="alternatives-heading">Other options</h2>
-      <div id="alternatives" class="alternatives-grid"></div>
+      <div class="recommend-secondary">
+        <div class="toggles">
+          <label class="toggle-label">
+            <input type="checkbox" id="toggle-christmas"> Show Christmas teas
+          </label>
+          <label class="toggle-label">
+            <input type="checkbox" id="toggle-specials"> Show Specials
+          </label>
+        </div>
+        <h2 id="alternatives-heading" class="alternatives-heading">Other options</h2>
+        <div id="alternatives" class="alternatives-grid"></div>
+      </div>
     </section>
 
     <section id="browse" class="view">
