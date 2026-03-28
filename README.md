@@ -19,7 +19,7 @@ The tea catalog lives in `teas.csv`. Edit it in **macOS Numbers** and export bac
 | Column | Expected values | Notes |
 |---|---|---|
 | Name | Free text | Required |
-| Sourcer | Free text | Brand or supplier. The CSV header may be `Brand` — both work |
+| Brand | Free text | Brand or supplier. The CSV header may be `Sourcer` — both work |
 | Type | Free text | e.g. Black (Red), Green, Matcha, Herbal |
 | Origin | Free text or `n.a.` | Country of origin |
 | Theme | Free text | e.g. `Christmas`, `Specials: Herbs`. Leave blank if none |
@@ -28,7 +28,7 @@ The tea catalog lives in `teas.csv`. Edit it in **macOS Numbers** and export bac
 | Brew | Free text | Brewing time, e.g. `5 min` |
 | Quantity | `Full`, `Half`, `Quarter`, or `Empty` | Current stock level |
 | Repurchase? | `Yes` or `No` | Whether to reorder when empty. Leave blank if undecided |
-| Collection | `Core`, `Range`, or `Testing` | `Core` = highest recommendation weight, `Range` = nice to have, `Testing` = still evaluating |
+| Collection | `Core`, `Range`, or `Testing` | `Testing` = highest recommendation weight (+3), `Range` = +2, `Core` = +1 — new teas get evaluated faster |
 | Since | Year | When the tea was added, e.g. `2025` |
 | Description | Free text | A sentence or two about the tea |
 | Additives | Free text | e.g. `Flavors (vanilla, caramel)`. Leave blank if none |
