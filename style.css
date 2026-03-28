@@ -172,6 +172,19 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
   min-height: calc(100dvh - 8rem);
 }
 
+.recommend-illustration {
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  margin-top: 1rem;
+}
+
+.recommend-illustration img {
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+}
+
 /* === Toggles === */
 .toggles {
   display: flex;
