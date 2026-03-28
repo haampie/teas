@@ -208,19 +208,14 @@ function renderAlternatives(eligible, featured) {
 }
 
 function promoteToFeatured(tea) {
-  window.scrollTo(0, 0);
-  const fc = document.getElementById('featured-card');
-  fc.classList.add('fade-out');
-  setTimeout(() => {
-    currentFeatured = tea;
-    shownSet.add(tea.id);
-    renderFeaturedCard(tea);
-    const grid = document.getElementById('alternatives');
-    grid.querySelector('.alt-selected')?.classList.remove('alt-selected');
-    grid.querySelector(`[data-id="${tea.id}"]`)?.classList.add('alt-selected');
-    setHash({ view: 'recommend', tea: tea.slug }, true);
-    fc.classList.remove('fade-out');
-  }, 300);
+  currentFeatured = tea;
+  shownSet.add(tea.id);
+  renderFeaturedCard(tea);
+  const grid = document.getElementById('alternatives');
+  grid.querySelector('.alt-selected')?.classList.remove('alt-selected');
+  grid.querySelector(`[data-id="${tea.id}"]`)?.classList.add('alt-selected');
+  setHash({ view: 'recommend', tea: tea.slug }, true);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function clearRecommend() {
