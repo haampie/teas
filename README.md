@@ -19,7 +19,7 @@ The tea catalog lives in `teas.csv`. Edit it in **macOS Numbers** and export bac
 | Column | Expected values | Notes |
 |---|---|---|
 | Name | Free text | Required |
-| Sourcer | Free text | Brand or supplier |
+| Sourcer | Free text | Brand or supplier. The CSV header may be `Brand` — both work |
 | Type | Free text | e.g. Black (Red), Green, Matcha, Herbal |
 | Origin | Free text or `n.a.` | Country of origin |
 | Theme | Free text | e.g. `Christmas`, `Specials: Herbs`. Leave blank if none |
@@ -28,7 +28,7 @@ The tea catalog lives in `teas.csv`. Edit it in **macOS Numbers** and export bac
 | Brew | Free text | Brewing time, e.g. `5 min` |
 | Quantity | `Full`, `Half`, `Quarter`, or `Empty` | Current stock level |
 | Repurchase? | `Yes` or `No` | Whether to reorder when empty. Leave blank if undecided |
-| Collection | `Core` or `Testing` | Core teas get higher recommendation weight |
+| Collection | `Core`, `Range`, or `Testing` | `Core` = highest recommendation weight, `Range` = nice to have, `Testing` = still evaluating |
 | Since | Year | When the tea was added, e.g. `2025` |
 | Description | Free text | A sentence or two about the tea |
 | Additives | Free text | e.g. `Flavors (vanilla, caramel)`. Leave blank if none |
@@ -36,8 +36,8 @@ The tea catalog lives in `teas.csv`. Edit it in **macOS Numbers** and export bac
 
 ### Tips
 
-- **Spelling and case matter** for Daytime, Quantity, Repurchase?, and Collection. Use exactly the values listed above (the app tolerates minor case differences, but not typos).
-- **Don't rename or reorder columns.** The app matches columns by their header names.
+- **Spelling and case matter** for cell values of Daytime, Quantity, Repurchase?, and Collection. The app normalises case for these fields, but typos will cause problems. Type and Origin values are used as-is.
+- **Column headers are case-insensitive** — the app matches them regardless of capitalisation. Don't rename or reorder them, though.
 - **Commas in text** are fine — Numbers wraps those fields in quotes automatically on export.
 - **Avoid trailing whitespace** in cells. Numbers generally doesn't add any, but double-check if you've copy-pasted from elsewhere.
 - **Theme prefixes**: teas with a theme starting with `Specials` (e.g. `Specials: Herbs`) are grouped under the Specials toggle in the Recommend view. Teas with `Christmas` in the theme are auto-enabled in December.

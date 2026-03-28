@@ -50,16 +50,16 @@ function csvToObjects(text) {
   const rows = parseCSV(text);
   const headers = rows[0];
   const keyMap = {
-    'Name': 'name', 'Sourcer': 'sourcer', 'Brand': 'sourcer', 'Type': 'type', 'Origin': 'origin',
-    'Theme': 'theme', 'Daytime': 'daytime', 'Temp': 'temp', 'Brew': 'brew',
-    'Quantity': 'quantity', 'Repurchase?': 'repurchase', 'Collection': 'collection',
-    'Since': 'since', 'Description': 'description', 'Additives': 'additives',
-    'Aroma Notes': 'aromaNotes'
+    'name': 'name', 'sourcer': 'sourcer', 'brand': 'sourcer', 'type': 'type', 'origin': 'origin',
+    'theme': 'theme', 'daytime': 'daytime', 'temp': 'temp', 'brew': 'brew',
+    'quantity': 'quantity', 'repurchase?': 'repurchase', 'collection': 'collection',
+    'since': 'since', 'description': 'description', 'additives': 'additives',
+    'aroma notes': 'aromaNotes'
   };
   return rows.slice(1).map((row, idx) => {
     const obj = { id: idx };
     headers.forEach((h, i) => {
-      obj[keyMap[h.trim()] || h.trim()] = (row[i] || '').trim();
+      obj[keyMap[h.trim().toLowerCase()] || h.trim()] = (row[i] || '').trim();
     });
     // Normalize categorical fields to title-case
     for (const f of ['quantity', 'repurchase', 'daytime', 'collection']) {
