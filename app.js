@@ -59,8 +59,12 @@ function csvToObjects(text) {
   return rows.slice(1).map((row, idx) => {
     const obj = { id: idx };
     headers.forEach((h, i) => {
-      obj[keyMap[h] || h] = (row[i] || '').trim();
+      obj[keyMap[h.trim()] || h.trim()] = (row[i] || '').trim();
     });
+    // Normalize categorical fields to title-case
+    for (const f of ['quantity', 'repurchase', 'daytime', 'collection']) {
+      if (obj[f]) obj[f] = obj[f].charAt(0).toUpperCase() + obj[f].slice(1).toLowerCase();
+    }
     return obj;
   });
 }
@@ -71,7 +75,7 @@ const teas = csvToObjects(await resp.text());
 
 // === Helpers ===
 const isChristmas = t => (t.theme || '').toLowerCase().includes('christmas');
-const isSpecials = t => (t.theme || '').startsWith('Specials');
+const isSpecials = t => (t.theme || '').toLowerCase().startsWith('specials');
 const isInStock = t => t.quantity !== 'Empty';
 
 function getTimeOfDay() {
@@ -161,7 +165,8 @@ function renderFeaturedCard(tea) {
       ${tea.temp ? `<div><dt>Temperature</dt><dd>${tea.temp}</dd></div>` : ''}
       ${tea.brew ? `<div><dt>Brew time</dt><dd>${tea.brew}</dd></div>` : ''}
       ${tea.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(tea.quantity)}</span></dd></div>` : ''}
-      ${tea.aromaNotes ? `<div><dt>Aroma</dt><dd>${tea.aromaNotes}</dd></div>` : ''}
+      ${tea.theme ? `<div><dt>Theme</dt><dd>${tea.theme}</dd></div>` : ''}
+      ${tea.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${tea.aromaNotes}</dd></div>` : ''}
     </dl>
   `;
 }
@@ -244,14 +249,22 @@ types.forEach(t => {
   typeSelect.appendChild(o);
 });
 
+const origins = [...new Set(teas.map(t => t.origin).filter(o => o && o !== '/' && o !== 'n.a.'))].sort();
+const originSelect = document.getElementById('filter-origin');
+origins.forEach(o => {
+  const opt = document.createElement('option');
+  opt.value = o; opt.textContent = o;
+  originSelect.appendChild(opt);
+});
+
 function getHashFilters() {
   const p = new URLSearchParams(location.hash.slice(1));
   return {
     daytime: p.get('daytime') || 'All',
     type: p.get('type') || 'All',
+    origin: p.get('origin') || 'All',
     christmas: p.get('christmas') === '1',
     specials: p.get('specials') === '1',
-    outOfStock: p.get('oos') === '1',
   };
 }
 
@@ -259,27 +272,27 @@ function setHashFilters(f) {
   const p = new URLSearchParams();
   if (f.daytime !== 'All') p.set('daytime', f.daytime);
   if (f.type !== 'All') p.set('type', f.type);
+  if (f.origin !== 'All') p.set('origin', f.origin);
   if (f.christmas) p.set('christmas', '1');
   if (f.specials) p.set('specials', '1');
-  if (f.outOfStock) p.set('oos', '1');
   history.replaceState(null, '', '#' + p.toString());
 }
 
 function applyFiltersToUI(f) {
   document.getElementById('filter-daytime').value = f.daytime;
   document.getElementById('filter-type').value = f.type;
+  document.getElementById('filter-origin').value = f.origin;
   document.getElementById('browse-christmas').checked = f.christmas;
   document.getElementById('browse-specials').checked = f.specials;
-  document.getElementById('browse-out-of-stock').checked = f.outOfStock;
 }
 
 function readFiltersFromUI() {
   return {
     daytime: document.getElementById('filter-daytime').value,
     type: document.getElementById('filter-type').value,
+    origin: document.getElementById('filter-origin').value,
     christmas: document.getElementById('browse-christmas').checked,
     specials: document.getElementById('browse-specials').checked,
-    outOfStock: document.getElementById('browse-out-of-stock').checked,
   };
 }
 
@@ -289,9 +302,10 @@ function renderBrowse() {
   const filtered = teas.filter(t => {
     if (f.daytime !== 'All' && t.daytime && t.daytime !== f.daytime) return false;
     if (f.type !== 'All' && t.type !== f.type) return false;
+    if (f.origin !== 'All' && t.origin !== f.origin) return false;
     if (isChristmas(t) && !f.christmas) return false;
     if (isSpecials(t) && !f.specials) return false;
-    if (!isInStock(t) && !f.outOfStock) return false;
+    if (!isInStock(t)) return false;
     return true;
   });
 
@@ -318,11 +332,12 @@ function renderBrowse() {
       <div class="browse-card-detail">
         <p class="tea-description">${t.description}</p>
         <dl class="tea-details">
+          ${t.theme ? `<div><dt>Theme</dt><dd>${t.theme}</dd></div>` : ''}
           ${t.temp ? `<div><dt>Temperature</dt><dd>${t.temp}</dd></div>` : ''}
           ${t.brew ? `<div><dt>Brew time</dt><dd>${t.brew}</dd></div>` : ''}
           ${t.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(t.quantity)}</span></dd></div>` : ''}
-          ${t.aromaNotes ? `<div><dt>Aroma</dt><dd>${t.aromaNotes}</dd></div>` : ''}
-          ${t.sourcer ? `<div><dt>Sourcer</dt><dd>${t.sourcer}</dd></div>` : ''}
+          ${t.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${t.aromaNotes}</dd></div>` : ''}
+          ${t.sourcer ? `<div><dt>Brand</dt><dd>${t.sourcer}</dd></div>` : ''}
         </dl>
       </div>
     </div>`;
