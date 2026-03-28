@@ -237,8 +237,12 @@ function initRecommend() {
 }
 
 document.getElementById('suggest-btn').addEventListener('click', suggestAnother);
-document.getElementById('toggle-christmas').addEventListener('change', () => { shownSet.clear(); suggestAnother(); });
-document.getElementById('toggle-specials').addEventListener('change', () => { shownSet.clear(); suggestAnother(); });
+function onToggleChange() {
+  shownSet.clear();
+  renderAlternatives(getEligible(), currentFeatured);
+}
+document.getElementById('toggle-christmas').addEventListener('change', onToggleChange);
+document.getElementById('toggle-specials').addEventListener('change', onToggleChange);
 
 // === Browse View ===
 const types = [...new Set(teas.map(t => t.type))].sort();
