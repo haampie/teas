@@ -65,13 +65,23 @@ function csvToObjects(text) {
     for (const f of ['quantity', 'daytime', 'collection']) {
       if (obj[f]) obj[f] = obj[f].charAt(0).toUpperCase() + obj[f].slice(1).toLowerCase();
     }
+    obj.slug = slugify(obj.name);
     return obj;
   });
+}
+
+function slugify(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 // === Data ===
 const resp = await fetch('teas.csv');
 const teas = csvToObjects(await resp.text());
+
+function findBySlug(slug) {
+  return teas.find(t => t.slug === slug);
+}
 
 // === Helpers ===
 const isChristmas = t => (t.theme || '').toLowerCase().includes('christmas');
@@ -209,6 +219,7 @@ function promoteToFeatured(tea) {
     shownSet.add(tea.id);
     renderFeaturedCard(tea);
     renderAlternatives(getEligible(), tea);
+    history.replaceState(null, '', '#tea=' + tea.slug);
     fc.classList.remove('fade-out');
   }, 300);
 }
@@ -367,11 +378,34 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.add('active');
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(btn.dataset.view).classList.add('active');
-    if (btn.dataset.view === 'browse') renderBrowse();
+    if (btn.dataset.view === 'browse') {
+      renderBrowse();
+    } else if (currentFeatured) {
+      history.replaceState(null, '', '#tea=' + currentFeatured.slug);
+    }
   });
 });
 
 // === Init ===
-// Restore browse filters from hash
-applyFiltersToUI(getHashFilters());
-initRecommend();
+const initParams = new URLSearchParams(location.hash.slice(1));
+const teaSlug = initParams.get('tea');
+if (teaSlug) {
+  const t = findBySlug(teaSlug);
+  if (t) {
+    document.getElementById('greeting').textContent = getGreeting();
+    if (new Date().getMonth() === 11) {
+      document.getElementById('toggle-christmas').checked = true;
+    }
+    currentFeatured = t;
+    shownSet.add(t.id);
+    renderFeaturedCard(t);
+    renderAlternatives(getEligible(), t);
+  } else {
+    applyFiltersToUI(getHashFilters());
+    initRecommend();
+  }
+} else {
+  // Restore browse filters from hash
+  applyFiltersToUI(getHashFilters());
+  initRecommend();
+}
