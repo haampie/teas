@@ -215,7 +215,9 @@ function promoteToFeatured(tea) {
     currentFeatured = tea;
     shownSet.add(tea.id);
     renderFeaturedCard(tea);
-    renderAlternatives(getEligible(), tea);
+    const grid = document.getElementById('alternatives');
+    grid.querySelector('.alt-selected')?.classList.remove('alt-selected');
+    grid.querySelector(`[data-id="${tea.id}"]`)?.classList.add('alt-selected');
     setHash({ view: 'recommend', tea: tea.slug }, true);
     fc.classList.remove('fade-out');
   }, 300);
