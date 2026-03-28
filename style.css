@@ -266,6 +266,10 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   transform: translateY(-1px);
 }
+.alt-card.alt-selected {
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--card-bg));
+}
 
 .alt-card .alt-info {
   flex: 1;

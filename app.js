@@ -188,17 +188,16 @@ function renderFeaturedCard(tea) {
 }
 
 function renderAlternatives(eligible, featured) {
-  const alts = eligible.filter(t => t.id !== featured?.id);
   const heading = document.getElementById('alternatives-heading');
   const grid = document.getElementById('alternatives');
-  if (alts.length === 0) {
+  if (eligible.length === 0) {
     heading.hidden = true;
     grid.innerHTML = '';
     return;
   }
   heading.hidden = false;
-  grid.innerHTML = alts.map(t => `
-    <div class="alt-card" data-id="${t.id}">
+  grid.innerHTML = eligible.map(t => `
+    <div class="alt-card${t.id === featured?.id ? ' alt-selected' : ''}" data-id="${t.id}">
       <span class="badge" style="background:${badgeColor(t.type)}">${t.type.split(' ')[0]}</span>
       <div class="alt-info">
         <div class="alt-name">${t.name}</div>
@@ -209,6 +208,7 @@ function renderAlternatives(eligible, featured) {
 }
 
 function promoteToFeatured(tea) {
+  window.scrollTo(0, 0);
   const fc = document.getElementById('featured-card');
   fc.classList.add('fade-out');
   setTimeout(() => {
