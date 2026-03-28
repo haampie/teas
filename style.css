@@ -362,7 +362,7 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 44px;
+  min-height: calc(3lh + 1.5rem);
 }
 
 .browse-card-header .bc-name {

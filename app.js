@@ -414,15 +414,17 @@ function renderBrowse() {
     const origin = validOrigin(t);
     const oos = !isInStock(t) ? ' out-of-stock' : '';
     return `
-    <div class="browse-card${oos}" data-id="${t.id}">
-      <div class="browse-card-header">
-        <span class="badge" style="background:${badgeColor(t.type)}">${t.type.split(' ')[0]}</span>
-        <span class="bc-name">${t.name}</span>
-        ${origin ? `<span class="bc-origin">${origin}</span>` : ''}
-      </div>
-      <div class="browse-card-detail">
-        <p class="tea-description">${t.description}</p>
-        ${teaDetailsHTML(t)}
+    <div class="browse-card-wrapper">
+      <div class="browse-card${oos}" data-id="${t.id}">
+        <div class="browse-card-header">
+          <span class="badge" style="background:${badgeColor(t.type)}">${t.type.split(' ')[0]}</span>
+          <span class="bc-name">${t.name}</span>
+          ${origin ? `<span class="bc-origin">${origin}</span>` : ''}
+        </div>
+        <div class="browse-card-detail">
+          <p class="tea-description">${t.description}</p>
+          ${teaDetailsHTML(t)}
+        </div>
       </div>
     </div>`;
   }).join('');
