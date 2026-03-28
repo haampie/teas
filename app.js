@@ -62,7 +62,7 @@ function csvToObjects(text) {
       obj[keyMap[h.trim().toLowerCase()] || h.trim()] = (row[i] || '').trim();
     });
     // Normalize categorical fields to title-case
-    for (const f of ['quantity', 'repurchase', 'daytime', 'collection']) {
+    for (const f of ['quantity', 'daytime', 'collection']) {
       if (obj[f]) obj[f] = obj[f].charAt(0).toUpperCase() + obj[f].slice(1).toLowerCase();
     }
     return obj;
@@ -114,9 +114,11 @@ function quantityDots(q) {
 
 function teaWeight(t) {
   let w = 1;
-  if ((t.collection || '').includes('Core')) w += 2;
+  const c = (t.collection || '').toLowerCase();
+  if (c.includes('testing')) w += 3;
+  else if (c.includes('range')) w += 2;
+  else if (c.includes('core')) w += 1;
   if (t.quantity === 'Full') w += 1;
-  if (t.repurchase === 'Yes') w += 1;
   return w;
 }
 
@@ -140,7 +142,7 @@ function getEligible() {
   const showSpec = document.getElementById('toggle-specials').checked;
   return teas.filter(t => {
     if (!isInStock(t)) return false;
-    if (t.daytime && t.daytime !== tod) return false;
+    if (t.daytime && t.daytime !== 'Day' && t.daytime !== tod) return false;
     if (isChristmas(t) && !showXmas) return false;
     if (isSpecials(t) && !showSpec) return false;
     return true;
@@ -304,7 +306,7 @@ function renderBrowse() {
   const f = readFiltersFromUI();
   setHashFilters(f);
   const filtered = teas.filter(t => {
-    if (f.daytime !== 'All' && t.daytime && t.daytime !== f.daytime) return false;
+    if (f.daytime !== 'All' && t.daytime && t.daytime !== 'Day' && t.daytime !== f.daytime) return false;
     if (f.type !== 'All' && t.type !== f.type) return false;
     if (f.origin !== 'All' && t.origin !== f.origin) return false;
     if (isChristmas(t) && !f.christmas) return false;

@@ -23,7 +23,7 @@ The tea catalog lives in `teas.csv`. Edit it in **macOS Numbers** and export bac
 | Type | Free text | e.g. Black (Red), Green, Matcha, Herbal |
 | Origin | Free text or `n.a.` | Country of origin |
 | Theme | Free text | e.g. `Christmas`, `Specials: Herbs`. Leave blank if none |
-| Daytime | `Morning`, `Day`, or `Evening` | When the tea is recommended. Leave blank for any time |
+| Daytime | `Morning`, `Day`, or `Evening` | `Day` = suitable any time; `Morning`/`Evening` = recommended for that slot only. Leave blank for any time |
 | Temp | Free text | Brewing temperature, e.g. `90℃` |
 | Brew | Free text | Brewing time, e.g. `5 min` |
 | Quantity | `Full`, `Half`, `Quarter`, or `Empty` | Current stock level |

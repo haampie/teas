@@ -1,7 +1,8 @@
 {
   "name": "Tea Time",
   "short_name": "Tea Time",
-  "start_url": "/",
+  "start_url": "/teas/",
+  "scope": "/teas/",
   "display": "standalone",
   "background_color": "#faf6f1",
   "theme_color": "#c4713b"
