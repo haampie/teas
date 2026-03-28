@@ -95,13 +95,6 @@ function getTimeOfDay() {
   return 'Evening';
 }
 
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 11) return 'Good morning. How about…';
-  if (h < 17) return 'Good afternoon. How about…';
-  return 'Good evening. How about…';
-}
-
 function badgeColor(type) {
   const t = type.toLowerCase();
   if (t.includes('matcha')) return 'var(--badge-matcha)';
@@ -178,8 +171,8 @@ function renderFeaturedCard(tea) {
       ${tea.temp ? `<div><dt>Temperature</dt><dd>${tea.temp}</dd></div>` : ''}
       ${tea.brew ? `<div><dt>Brew time</dt><dd>${tea.brew}</dd></div>` : ''}
       ${tea.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(tea.quantity)}</span></dd></div>` : ''}
-      ${tea.theme ? `<div><dt>Theme</dt><dd>${tea.theme}</dd></div>` : ''}
       ${tea.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${tea.aromaNotes}</dd></div>` : ''}
+      ${tea.theme ? `<div><dt>Theme</dt><dd>${tea.theme}</dd></div>` : ''}
     </dl>
   `;
 }
@@ -241,7 +234,6 @@ function suggestAnother() {
 }
 
 function initRecommend(tea) {
-  document.getElementById('greeting').textContent = getGreeting();
   // Auto-enable Christmas in December
   if (new Date().getMonth() === 11) {
     document.getElementById('toggle-christmas').checked = true;
@@ -254,7 +246,19 @@ function initRecommend(tea) {
     renderAlternatives(getEligible(), tea);
     history.replaceState(null, '', '#tea=' + tea.slug);
   } else {
-    suggestAnother();
+    const eligible = getEligible();
+    if (eligible.length === 0) {
+      renderFeaturedCard(null);
+      document.getElementById('alternatives-heading').hidden = true;
+      document.getElementById('alternatives').innerHTML = '';
+    } else {
+      const pick = weightedRandom(eligible);
+      currentFeatured = pick;
+      shownSet.add(pick.id);
+      renderFeaturedCard(pick);
+      renderAlternatives(eligible, pick);
+      history.replaceState(null, '', '#tea=' + pick.slug);
+    }
   }
 }
 
@@ -388,12 +392,12 @@ function renderBrowse() {
       <div class="browse-card-detail">
         <p class="tea-description">${t.description}</p>
         <dl class="tea-details">
-          ${t.theme ? `<div><dt>Theme</dt><dd>${t.theme}</dd></div>` : ''}
           ${t.temp ? `<div><dt>Temperature</dt><dd>${t.temp}</dd></div>` : ''}
           ${t.brew ? `<div><dt>Brew time</dt><dd>${t.brew}</dd></div>` : ''}
           ${t.quantity ? `<div><dt>In stock</dt><dd><span class="quantity-dots">${quantityDots(t.quantity)}</span></dd></div>` : ''}
           ${t.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${t.aromaNotes}</dd></div>` : ''}
           ${t.sourcer ? `<div><dt>Brand</dt><dd>${t.sourcer}</dd></div>` : ''}
+          ${t.theme ? `<div><dt>Theme</dt><dd>${t.theme}</dd></div>` : ''}
         </dl>
       </div>
     </div>`;
@@ -433,8 +437,13 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 const initParams = new URLSearchParams(location.hash.slice(1));
 applyFiltersToUI(getHashFilters());
 
-if (initParams.get('view') === 'browse') {
-  switchView('browse');
+const initView = initParams.get('view') === 'browse' ? 'browse' : 'recommend';
+currentView = initView;
+document.querySelector(`.nav-btn[data-view="${initView}"]`).classList.add('active');
+document.getElementById(initView).classList.add('active');
+
+if (initView === 'browse') {
+  renderBrowse();
 } else {
   const slug = initParams.get('tea');
   initRecommend((slug && findBySlug(slug)) || undefined);
