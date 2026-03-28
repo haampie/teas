@@ -50,7 +50,7 @@ function csvToObjects(text) {
   const rows = parseCSV(text);
   const headers = rows[0];
   const keyMap = {
-    'Name': 'name', 'Sourcer': 'sourcer', 'Type': 'type', 'Origin': 'origin',
+    'Name': 'name', 'Sourcer': 'sourcer', 'Brand': 'sourcer', 'Type': 'type', 'Origin': 'origin',
     'Theme': 'theme', 'Daytime': 'daytime', 'Temp': 'temp', 'Brew': 'brew',
     'Quantity': 'quantity', 'Repurchase?': 'repurchase', 'Collection': 'collection',
     'Since': 'since', 'Description': 'description', 'Additives': 'additives',
