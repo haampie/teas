@@ -216,7 +216,7 @@ function promoteToFeatured(tea) {
     shownSet.add(tea.id);
     renderFeaturedCard(tea);
     renderAlternatives(getEligible(), tea);
-    history.replaceState(null, '', '#tea=' + tea.slug);
+    setHash({ view: 'recommend', tea: tea.slug }, true);
     fc.classList.remove('fade-out');
   }, 300);
 }
@@ -251,7 +251,7 @@ function initRecommend(tea) {
     shownSet.add(tea.id);
     renderFeaturedCard(tea);
     renderAlternatives(getEligible(), tea);
-    history.replaceState(null, '', '#tea=' + tea.slug);
+    setHash({ view: 'recommend', tea: tea.slug });
   } else {
     const eligible = getEligible();
     if (eligible.length === 0) {
@@ -262,7 +262,7 @@ function initRecommend(tea) {
       shownSet.add(pick.id);
       renderFeaturedCard(pick);
       renderAlternatives(eligible, pick);
-      history.replaceState(null, '', '#tea=' + pick.slug);
+      setHash({ view: 'recommend', tea: pick.slug });
     }
   }
 }
@@ -313,9 +313,11 @@ origins.forEach(o => {
   originSelect.appendChild(opt);
 });
 
-function getHashFilters() {
+function parseHash() {
   const p = new URLSearchParams(location.hash.slice(1));
   return {
+    view: p.get('view') === 'browse' ? 'browse' : 'recommend',
+    tea: p.get('tea') || null,
     daytime: p.get('daytime') || 'All',
     type: p.get('type') || 'All',
     origin: p.get('origin') || 'All',
@@ -324,15 +326,21 @@ function getHashFilters() {
   };
 }
 
-function setHashFilters(f) {
+function setHash(r, push = false) {
   const p = new URLSearchParams();
-  p.set('view', 'browse');
-  if (f.daytime !== 'All') p.set('daytime', f.daytime);
-  if (f.type !== 'All') p.set('type', f.type);
-  if (f.origin !== 'All') p.set('origin', f.origin);
-  if (f.christmas) p.set('christmas', '1');
-  if (f.specials) p.set('specials', '1');
-  history.replaceState(null, '', '#' + p.toString());
+  if (r.view === 'browse') {
+    p.set('view', 'browse');
+    if (r.daytime !== 'All') p.set('daytime', r.daytime);
+    if (r.type !== 'All') p.set('type', r.type);
+    if (r.origin !== 'All') p.set('origin', r.origin);
+    if (r.christmas) p.set('christmas', '1');
+    if (r.specials) p.set('specials', '1');
+  } else if (r.tea) {
+    p.set('tea', r.tea);
+  }
+  const hash = '#' + p.toString();
+  if (push) history.pushState(null, '', hash);
+  else history.replaceState(null, '', hash);
 }
 
 function applyFiltersToUI(f) {
@@ -391,7 +399,7 @@ function renderBrowse() {
 
   // Re-read filters in case any were reset
   const updatedF = readFiltersFromUI();
-  setHashFilters(updatedF);
+  setHash({ view: 'browse', ...updatedF });
 
   const filtered = getFilteredTeas(updatedF);
 
@@ -428,36 +436,32 @@ document.querySelectorAll('#browse .filters select, #browse .filters input').for
 });
 
 // === Navigation ===
-function switchView(name) {
-  currentView = name;
+function navigate(route) {
+  currentView = route.view;
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.nav-btn[data-view="${name}"]`).classList.add('active');
+  document.querySelector(`.nav-btn[data-view="${route.view}"]`).classList.add('active');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(name).classList.add('active');
-  if (name === 'browse') {
+  document.getElementById(route.view).classList.add('active');
+
+  if (route.view === 'browse') {
+    applyFiltersToUI(route);
     renderBrowse();
   } else {
-    if (!currentFeatured) initRecommend();
-    history.replaceState(null, '', currentFeatured ? '#tea=' + currentFeatured.slug : location.pathname);
+    const tea = route.tea && findBySlug(route.tea);
+    if (tea || !currentFeatured) initRecommend(tea || undefined);
   }
 }
 
 document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => switchView(btn.dataset.view));
+  btn.addEventListener('click', () => {
+    const route = { view: btn.dataset.view };
+    if (route.view === 'browse') Object.assign(route, readFiltersFromUI());
+    setHash(route, true);
+    navigate(route);
+  });
 });
 
+window.addEventListener('popstate', () => navigate(parseHash()));
+
 // === Init ===
-const initParams = new URLSearchParams(location.hash.slice(1));
-applyFiltersToUI(getHashFilters());
-
-const initView = initParams.get('view') === 'browse' ? 'browse' : 'recommend';
-currentView = initView;
-document.querySelector(`.nav-btn[data-view="${initView}"]`).classList.add('active');
-document.getElementById(initView).classList.add('active');
-
-if (initView === 'browse') {
-  renderBrowse();
-} else {
-  const slug = initParams.get('tea');
-  initRecommend((slug && findBySlug(slug)) || undefined);
-}
+navigate(parseHash());
