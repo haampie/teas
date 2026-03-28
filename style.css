@@ -1,0 +1,370 @@
+/* === Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #faf6f1;
+  --text: #2c1810;
+  --accent: #c4713b;
+  --card-bg: #fff;
+  --border: #e8ddd4;
+  --badge-black: #8b2500;
+  --badge-green: #4a7c59;
+  --badge-oolong: #4a6fa5;
+  --badge-white: #b8a88a;
+  --badge-infusion: #9b6b9e;
+  --badge-yellow: #b8963e;
+  --badge-matcha: #5a8f3c;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100dvh;
+}
+
+h1, h2, h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: normal;
+}
+
+/* === Header / Nav === */
+header {
+  text-align: center;
+  padding: 1.5rem 1rem 0.5rem;
+}
+
+header h1 {
+  font-size: 1.75rem;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.nav-btn {
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  min-height: 44px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* === Views === */
+main { padding: 1rem; max-width: 960px; margin: 0 auto; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* === Greeting === */
+.greeting {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+/* === Featured Card === */
+.featured-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.featured-card.fade-out { opacity: 0; }
+
+.featured-card .tea-name {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.featured-card .tea-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tea-origin, .tea-sourcer {
+  font-size: 0.85rem;
+  color: #6b5544;
+}
+
+.tea-description {
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tea-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #6b5544;
+}
+
+.tea-details dt {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tea-details dd {
+  margin-bottom: 0.5rem;
+}
+
+.quantity-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.quantity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.quantity-dot.empty {
+  background: var(--border);
+}
+
+/* === Toggles === */
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0.25rem 0.5rem;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+
+/* === Suggest Button === */
+.suggest-btn {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  min-height: 44px;
+  margin-bottom: 1.5rem;
+  transition: background 0.2s;
+}
+
+.suggest-btn:hover {
+  background: #a85e30;
+}
+
+/* === Alternatives === */
+.alternatives-heading {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  color: #6b5544;
+}
+
+.alternatives-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+
+.alt-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+}
+
+.alt-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.alt-card .alt-info {
+  flex: 1;
+}
+
+.alt-card .alt-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.alt-card .alt-sub {
+  font-size: 0.8rem;
+  color: #6b5544;
+}
+
+/* === Browse Filters === */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b5544;
+}
+
+.filter-group select {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  min-height: 44px;
+  color: var(--text);
+}
+
+/* === Browse Grid === */
+.browse-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+
+.browse-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.browse-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.browse-card-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+}
+
+.browse-card-header .bc-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.browse-card-header .bc-origin {
+  font-size: 0.8rem;
+  color: #6b5544;
+}
+
+.browse-card-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+  padding: 0 1rem;
+}
+
+.browse-card.expanded .browse-card-detail {
+  max-height: 500px;
+  padding: 0 1rem 1rem;
+}
+
+.browse-card-detail .tea-description {
+  font-size: 0.9rem;
+}
+
+.browse-card-detail .tea-details {
+  margin-top: 0.5rem;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #6b5544;
+  padding: 2rem;
+  font-style: italic;
+}
+
+.out-of-stock {
+  opacity: 0.5;
+}
+
+/* === Responsive === */
+@media (min-width: 600px) {
+  .alternatives-grid, .browse-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .suggest-btn { max-width: 300px; margin-left: auto; margin-right: auto; }
+}
+
+@media (min-width: 900px) {
+  .alternatives-grid, .browse-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

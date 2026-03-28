@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tea Time</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Tea Time</h1>
+    <nav>
+      <button class="nav-btn active" data-view="recommend">Recommend</button>
+      <button class="nav-btn" data-view="browse">Browse</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="recommend" class="view active">
+      <p id="greeting" class="greeting"></p>
+      <div id="featured-card" class="featured-card"></div>
+      <div class="toggles">
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-christmas"> Show Christmas teas
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-specials"> Show Specials
+        </label>
+      </div>
+      <button id="suggest-btn" class="suggest-btn">Suggest another</button>
+      <h2 id="alternatives-heading" class="alternatives-heading">Other options</h2>
+      <div id="alternatives" class="alternatives-grid"></div>
+    </section>
+
+    <section id="browse" class="view">
+      <div class="filters">
+        <div class="filter-group">
+          <label for="filter-daytime">Time of day</label>
+          <select id="filter-daytime">
+            <option value="All">All</option>
+            <option value="Morning">Morning</option>
+            <option value="Day">Day</option>
+            <option value="Evening">Evening</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-type">Type</label>
+          <select id="filter-type">
+            <option value="All">All</option>
+          </select>
+        </div>
+        <label class="toggle-label">
+          <input type="checkbox" id="browse-christmas"> Christmas
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="browse-specials"> Specials
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="browse-out-of-stock"> Show out of stock
+        </label>
+      </div>
+      <div id="browse-grid" class="browse-grid"></div>
+      <p id="browse-empty" class="empty-msg" hidden>No teas match these filters.</p>
+    </section>
+  </main>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
