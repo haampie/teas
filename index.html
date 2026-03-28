@@ -25,9 +25,16 @@
       <div class="recommend-hero">
         <p id="greeting" class="greeting"></p>
         <script>document.getElementById('greeting').textContent=new Date().getHours()<11?'Good morning. How about\u2026':new Date().getHours()<17?'Good afternoon. How about\u2026':'Good evening. How about\u2026';</script>
-        <div id="featured-card" class="featured-card"></div>
+        <div class="featured-wrap">
+          <div id="featured-card" class="featured-card"></div>
+          <button id="suggest-btn" class="suggest-btn" aria-label="Suggest another tea">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 4v6h-6"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+          </button>
+        </div>
       </div>
-      <button id="suggest-btn" class="suggest-btn">Suggest another</button>
       <div class="recommend-secondary">
         <div class="toggles">
           <label class="toggle-label">

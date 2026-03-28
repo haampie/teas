@@ -80,12 +80,16 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
 }
 
 /* === Featured Card === */
+.featured-wrap {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
 .featured-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.25rem;
-  margin-bottom: 1rem;
   min-height: 180px;
   opacity: 1;
   transition: opacity 0.3s ease;
@@ -195,27 +199,27 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
 
 /* === Suggest Button === */
 .suggest-btn {
-  position: fixed;
-  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  width: calc(100% - 2rem);
-  max-width: calc(600px - 2rem);
-  font: inherit;
-  font-size: 1rem;
-  padding: 0.75rem;
-  border: 2px solid var(--accent);
-  border-radius: 12px;
-  background: var(--accent);
-  color: #fff;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--accent);
   cursor: pointer;
-  min-height: 44px;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .suggest-btn:hover {
-  background: #a85e30;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 /* === Alternatives === */
@@ -229,7 +233,7 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
   display: grid;
   gap: 0.75rem;
   grid-template-columns: 1fr;
-  padding-bottom: 4.5rem;
+  padding-bottom: 1rem;
 }
 
 .alt-card {
@@ -387,7 +391,6 @@ main { padding: 1rem; max-width: 960px; margin: 0 auto; }
   .alternatives-grid, .browse-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .suggest-btn { max-width: 300px; }
 }
 
 @media (min-width: 900px) {
