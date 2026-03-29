@@ -120,10 +120,16 @@ function validOrigin(t) {
   return o && o !== '/' && o !== 'n.a.' ? o : '';
 }
 
+function parseBrewMinutes(str) {
+  if (!str) return null;
+  const m = str.match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
 function teaDetailsHTML(t, { showBrand = true } = {}) {
   return `<dl class="tea-details">
     ${t.temp ? `<div><dt>Temperature</dt><dd>${t.temp}</dd></div>` : ''}
-    ${t.brew ? `<div><dt>Brew time</dt><dd>${t.brew}</dd></div>` : ''}
+    ${t.brew ? `<div><dt>Brew time</dt><dd>${parseBrewMinutes(t.brew) !== null ? `<span class="brew-timer" data-minutes="${parseBrewMinutes(t.brew)}" data-original="${t.brew}">${t.brew}</span>` : t.brew}</dd></div>` : ''}
     ${t.quantity ? `<div><dt>Stock</dt><dd><span class="quantity-dots">${quantityDots(t.quantity)}</span></dd></div>` : ''}
     ${t.aromaNotes ? `<div><dt>Aroma notes</dt><dd>${t.aromaNotes}</dd></div>` : ''}
     ${showBrand && t.sourcer ? `<div><dt>Brand</dt><dd>${t.sourcer}</dd></div>` : ''}
@@ -151,6 +157,52 @@ function weightedRandom(arr) {
   return arr[arr.length - 1];
 }
 
+// === Brew Timer ===
+let brewTimerInterval = null;
+
+function clearBrewTimer() {
+  if (brewTimerInterval) {
+    clearInterval(brewTimerInterval);
+    brewTimerInterval = null;
+  }
+}
+
+document.getElementById('featured-card').addEventListener('click', e => {
+  const el = e.target.closest('.brew-timer[data-minutes]');
+  if (!el) return;
+
+  if (brewTimerInterval) {
+    clearBrewTimer();
+    el.textContent = el.dataset.original;
+    el.classList.remove('active');
+    return;
+  }
+
+  let remaining = parseInt(el.dataset.minutes, 10) * 60;
+  el.classList.add('active');
+
+  function update() {
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  }
+  update();
+
+  brewTimerInterval = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearBrewTimer();
+      el.textContent = 'Ready';
+      setTimeout(() => {
+        el.textContent = el.dataset.original;
+        el.classList.remove('active');
+      }, 10000);
+    } else {
+      update();
+    }
+  }, 1000);
+});
+
 // === Recommend View ===
 const shownSet = new Set();
 let currentFeatured = null;
@@ -170,6 +222,7 @@ function getEligible() {
 }
 
 function renderFeaturedCard(tea) {
+  clearBrewTimer();
   if (!tea) {
     document.getElementById('featured-card').innerHTML = '<p class="empty-msg">No teas available for this time of day.</p>';
     return;
