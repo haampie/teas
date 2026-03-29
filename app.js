@@ -83,6 +83,34 @@ function findBySlug(slug) {
   return teas.find(t => t.slug === slug);
 }
 
+// === Seeded PRNG ===
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function hashString(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+  }
+  return h;
+}
+
+let seededRandom = null;
+
+function resetRNG() {
+  const date = new Date().toISOString().slice(0, 10);
+  const tod = getTimeOfDay();
+  const xmas = document.getElementById('toggle-christmas').checked;
+  const spec = document.getElementById('toggle-specials').checked;
+  seededRandom = mulberry32(hashString(`${date}-${tod}-${xmas}-${spec}`));
+}
+
 // === Helpers ===
 const isChristmas = t => (t.theme || '').toLowerCase().includes('christmas');
 const isSpecials = t => (t.theme || '').toLowerCase().startsWith('specials');
@@ -149,7 +177,7 @@ function teaWeight(t) {
 
 function weightedRandom(arr) {
   const total = arr.reduce((s, t) => s + teaWeight(t), 0);
-  let r = Math.random() * total;
+  let r = seededRandom() * total;
   for (const t of arr) {
     r -= teaWeight(t);
     if (r <= 0) return t;
@@ -280,7 +308,7 @@ function clearRecommend() {
 function suggestAnother() {
   const eligible = getEligible();
   const unseen = eligible.filter(t => !shownSet.has(t.id));
-  if (unseen.length === 0) shownSet.clear();
+  if (unseen.length === 0) { shownSet.clear(); resetRNG(); }
   const pool = unseen.length > 0 ? unseen : eligible;
   if (pool.length === 0) {
     clearRecommend();
@@ -296,6 +324,7 @@ function initRecommend(tea) {
     document.getElementById('toggle-christmas').checked = true;
   }
   shownSet.clear();
+  resetRNG();
   if (tea) {
     currentFeatured = tea;
     shownSet.add(tea.id);
@@ -320,6 +349,7 @@ function initRecommend(tea) {
 document.getElementById('suggest-btn').addEventListener('click', suggestAnother);
 function onToggleChange() {
   shownSet.clear();
+  resetRNG();
   renderAlternatives(getEligible(), currentFeatured);
 }
 document.getElementById('toggle-christmas').addEventListener('change', onToggleChange);
