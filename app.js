@@ -187,6 +187,7 @@ function weightedRandom(arr) {
 
 // === Brew Timer ===
 let brewTimerInterval = null;
+let brewTimerDone = false;
 
 function clearBrewTimer() {
   if (brewTimerInterval) {
@@ -199,6 +200,15 @@ document.getElementById('featured-card').addEventListener('click', e => {
   const el = e.target.closest('.brew-timer[data-minutes]');
   if (!el) return;
 
+  // Done state → reset to idle
+  if (brewTimerDone) {
+    brewTimerDone = false;
+    el.textContent = el.dataset.original;
+    el.classList.remove('active');
+    return;
+  }
+
+  // Running state → cancel, reset to idle
   if (brewTimerInterval) {
     clearBrewTimer();
     el.textContent = el.dataset.original;
@@ -206,29 +216,25 @@ document.getElementById('featured-card').addEventListener('click', e => {
     return;
   }
 
-  let remaining = parseInt(el.dataset.minutes, 10) * 60;
+  // Idle state → start countdown using wall-clock end time
+  const endTime = Date.now() + parseInt(el.dataset.minutes, 10) * 60_000;
   el.classList.add('active');
 
   function update() {
-    const m = Math.floor(remaining / 60);
-    const s = remaining % 60;
-    el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+    if (remaining <= 0) {
+      clearBrewTimer();
+      brewTimerDone = true;
+      el.textContent = 'Ready';
+    } else {
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    }
   }
   update();
 
-  brewTimerInterval = setInterval(() => {
-    remaining--;
-    if (remaining <= 0) {
-      clearBrewTimer();
-      el.textContent = 'Ready';
-      setTimeout(() => {
-        el.textContent = el.dataset.original;
-        el.classList.remove('active');
-      }, 10000);
-    } else {
-      update();
-    }
-  }, 1000);
+  brewTimerInterval = setInterval(update, 1000);
 });
 
 // === Recommend View ===
